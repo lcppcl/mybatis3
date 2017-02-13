@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.java.mappers.StudentMapper">  <!-- namespace接口的完整路径 -->
+
+
+	<!--
+    	1，size:表示缓存cache中能容纳的最大元素数。默认是1024；
+    	2，flushInterval:定义缓存刷新周期，以毫秒计；
+     	3，eviction:定义缓存的移除机制；默认是LRU(least recently userd，最近最少使用),还有FIFO(first in first out，先进先出)
+     	4，readOnly:默认值是false，假如是true的话，缓存只能读。
+     -->
+	<cache size="1024" flushInterval="60000" eviction="LRU" readOnly="false"/>
+	
+		
+	<resultMap type="Student" id="StudentResult">
+		<id property="id" column="id"/> <!--用来定义主键    property是实体中的属性，column是数据库中的字段  -->
+		<result property="name" column="name"/>
+		<result property="age" column="age"/>
+	</resultMap>
+	
+	<!-- 插入clob和blob数据 -->
+	<insert id="insertStudent" parameterType="Student">
+		insert into t_student values(null,#{name},#{age},#{pic},#{remark})
+	</insert>
+	
+	<!-- 取出clob和blob数据       默认flushCache为false，不清除缓存   useCache为true默认是使用缓存       update，insert，delete默认都是清除缓存      -->
+	<select id="getStudentById" parameterType="Integer" resultType="Student">
+		select * from t_student where id=#{id}
+	</select>
+	
+	<!-- 输入两个参数进行查找 -->
+	<select id="searchStudent" resultMap="StudentResult">
+		select * from t_student where name like #{param1} and age=#{param2}
+	</select>
+	
+	<!-- 逻辑分页 -->
+	<select id="findStudents" resultMap="StudentResult">
+		select * from t_student
+	</select>
+	
+	<!-- 真正的分页 -->
+	<select id="findStudents2" resultMap="StudentResult" parameterType="Map">
+		select * from t_student
+		<if test="start!=null and size!=null">
+			limit#{start},#{size}
+		</if>
+	</select>
+</mapper>
+
+<!-- 对应类的映射文件 --> 
